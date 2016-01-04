@@ -1,0 +1,63 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
+    }
+}
+apply plugin: "net.minecraftforge.gradle.forge"
+
+version = getVersionFromJava()
+group = "net.timeless.cosmicraft"
+archivesBaseName = "CosmiCraft"
+
+minecraft {
+    version = "1.8.8-11.15.0.1655"
+    runDir = "minecraft"
+    mappings = "stable_20"
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		name = "ilexiconn"
+		url = "http://maven.ilexiconn.net"
+	}
+}
+
+dependencies {
+	compile "net.ilexiconn:llibrary:0.6.2-1.8.8:dev"
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from (sourceSets.main.resources.srcDirs) {
+        include "mcmod.info"
+        expand "version":project.version, "mcversion":project.minecraft.version
+    }
+        
+    from (sourceSets.main.resources.srcDirs) {
+        exclude "mcmod.info"
+    }
+}
+
+String getVersionFromJava() {
+    String prefix = "public static final String VERSION = \"";
+    File file = file("src/main/java/net/timeless/cosmicraft/CosmiCraft.java")
+    file.eachLine { String s ->
+        s = s.trim();
+        if (s.startsWith(prefix)) {
+            s = s.substring(prefix.length(), s.length() - 2);
+            String[] pts = s.split("\\.");
+
+            return pts[0] + "." + pts[1] + "." + pts[2] + "-1.8.8";
+        }
+    }
+}
